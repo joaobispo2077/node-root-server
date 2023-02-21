@@ -13,7 +13,7 @@
 // process.stdin
 //   .pipe(process.stdout);
 
-import { Readable } from "node:stream";
+import { Readable, Writable, Transform } from "node:stream";
 
 class OneToHundredStream extends Readable {
   index = 1;
@@ -32,4 +32,29 @@ class OneToHundredStream extends Readable {
   }
 }
 
-new OneToHundredStream().pipe(process.stdout);
+// new OneToHundredStream().pipe(process.stdout);
+
+class ConvertToNegative extends Transform {
+  _transform(chunk, encoding, callback) {
+    const data = Number(chunk.toString());
+
+    if (Number.isNaN(data)) {
+      callback(new Error("Invalid number"));
+    }
+
+    const transformed = data * -1;
+
+    callback(null, Buffer.from(String(transformed)));
+  }
+}
+
+class MultiplyByTenStream extends Writable {
+  _write(chunk, encoding, callback) {
+    console.log(Number(chunk.toString()) * 10);
+    callback();
+  }
+}
+
+new OneToHundredStream()
+  .pipe(new ConvertToNegative())
+  .pipe(new MultiplyByTenStream());
