@@ -4,7 +4,7 @@ import { routes } from './routes.js';
 
 const PORT = 3333;
 
-const checkRoute = (method, path, route) => route.method === method && route.path === path;
+const checkRoute = (method, path, route) => route.method === method && route.path.test(path);
 
 const server = http.createServer(async (request, response) => {
   const { method, url } = request;
@@ -14,7 +14,11 @@ const server = http.createServer(async (request, response) => {
   const foundRoute = routes.find(route => checkRoute(method, url, route));
 
   if (foundRoute) {
-    const { handler } = foundRoute;
+
+    const { handler, path } = foundRoute;
+    const routeParams = request.url.match(path);
+
+    request.params = { ...routeParams.groups };
     return handler(request, response);
   }
 
