@@ -40,4 +40,14 @@ export class Database {
 
     return data;
   }
+
+  delete(table, id) {
+    const rowIndex = this.#data[table].findIndex(row => row.id === id);
+
+    if (rowIndex > -1) {
+      this.#data[table].splice(rowIndex, 1);
+
+      this.#persist();
+    }
+  }
 }
