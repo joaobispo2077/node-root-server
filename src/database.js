@@ -23,8 +23,18 @@ export class Database {
     fs.writeFile(this.#databasePath, JSON.stringify(this.#data, null, 2));
   }
 
-  select(table) {
-    const data = this.#data[table] ?? [];
+  select(table, search) {
+    let data = this.#data[table] ?? [];
+
+    if (search) {
+      data = data.filter(row => {
+        const entries = Object.entries(search);
+        return entries.some(([key, value]) => {
+          return row[key].toLowerCase().includes(value.toLowerCase());
+        });
+      });
+    }
+
     return data;
   }
 
